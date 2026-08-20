@@ -36,8 +36,18 @@ export const api = {
   applyImprovement: (id, reviewId) =>
     request(`/api/tasks/${id}/deliverable/reviews/${reviewId}/apply`, { method: 'POST' }),
 
-  downloadVersionUrl: (id, version) =>
-    `/api/tasks/${id}/deliverable/versions/${version}/download`,
-  downloadImprovedUrl: (id, reviewId) =>
-    `/api/tasks/${id}/deliverable/reviews/${reviewId}/improved/download`,
+  downloadVersion: (id, version) =>
+    triggerDownload(`/api/tasks/${id}/deliverable/versions/${version}/download`),
+  downloadImproved: (id, reviewId) =>
+    triggerDownload(`/api/tasks/${id}/deliverable/reviews/${reviewId}/improved/download`),
 };
+
+/** O servidor responde com Content-Disposition: attachment, entao a pagina nao navega. */
+function triggerDownload(url) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.rel = 'noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}

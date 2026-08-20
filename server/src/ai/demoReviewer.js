@@ -82,20 +82,26 @@ export function demoReview({ parsed, filename, task }) {
     });
   }
 
+  // Busca literal por termo: e evidencia fraca — um arquivo pode ter uma tabela sem
+  // escrever "tabela" — entao vale como pista de baixa severidade, nunca como veredito.
   const checklist = keywordsFrom(task.fileCriteria).map((word) => {
     const ok = new RegExp(`\\b${escapeRegExp(word)}`, 'i').test(text);
     if (!ok) {
       issues.push({
-        severity: 'medio',
+        severity: 'baixo',
         location: 'arquivo inteiro',
-        problem: `O critério menciona "${word}", mas essa palavra não aparece no arquivo.`,
-        suggestion: `Confirme se o item "${word}" foi realmente coberto na entrega.`,
+        problem: `A palavra "${word}", que aparece nos critérios, não foi encontrada no texto.`,
+        suggestion:
+          `Confira se o item "${word}" foi coberto — a busca é literal, então ele pode estar ` +
+          'presente com outras palavras.',
       });
     }
     return {
-      item: `Menciona "${word}"`,
+      item: `Cita o termo "${word}"`,
       ok,
-      comment: ok ? 'Termo encontrado no arquivo.' : 'Termo não encontrado no arquivo.',
+      comment: ok
+        ? 'Termo encontrado no texto.'
+        : 'Termo não encontrado — a busca é literal e pode dar falso negativo.',
     };
   });
 

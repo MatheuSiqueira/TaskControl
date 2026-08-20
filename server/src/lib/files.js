@@ -1,5 +1,3 @@
-import path from 'node:path';
-
 /** Extensoes tratadas como texto puro — sao as unicas que a IA consegue reescrever. */
 const TEXT_EXTENSIONS = new Set([
   '.txt', '.md', '.markdown', '.csv', '.tsv', '.json', '.yaml', '.yml', '.xml',
@@ -23,7 +21,7 @@ export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20 MB
  * @returns {{kind: 'text'|'pdf'|'image'|'unsupported', text?: string, mediaType?: string, reason?: string}}
  */
 export function classify(buffer, filename, mimetype) {
-  const ext = path.extname(filename || '').toLowerCase();
+  const ext = extname(filename).toLowerCase();
   const mime = (mimetype || '').toLowerCase();
 
   if (mime === 'application/pdf' || ext === '.pdf') {
@@ -56,11 +54,17 @@ export function classify(buffer, filename, mimetype) {
   };
 }
 
+/** Extensao do arquivo, com o ponto. Sem node:path, para rodar tambem no navegador. */
+export function extname(filename) {
+  const match = /\.[^./\\]+$/.exec(filename || '');
+  return match ? match[0] : '';
+}
+
 /** Heuristica: bytes nulos ou muitos caracteres de substituicao indicam binario. */
 function looksBinary(text) {
   const sample = text.slice(0, 4000);
   if (sample.includes('\u0000')) return true;
-  const replacements = (sample.match(/�/g) || []).length;
+  const replacements = (sample.match(/\uFFFD/g) || []).length;
   return replacements > sample.length * 0.02;
 }
 

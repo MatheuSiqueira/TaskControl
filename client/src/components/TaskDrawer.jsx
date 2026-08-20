@@ -10,7 +10,7 @@ import {
   formatSize,
 } from '../lib/format.js';
 
-export default function TaskDrawer({ task, aiEnabled, onChange, onClose, onEdit, onDelete, notify }) {
+export default function TaskDrawer({ task, aiEnabled, demoMode, onChange, onClose, onEdit, onDelete, notify }) {
   const [busy, setBusy] = useState(null); // 'upload' | 'review' | 'apply' | 'status'
   const [selectedReviewId, setSelectedReviewId] = useState(null);
 
@@ -214,8 +214,9 @@ export default function TaskDrawer({ task, aiEnabled, onChange, onClose, onEdit,
                     <span>ℹ️</span>
                     <div>
                       <strong>Revisão por IA desativada</strong>
-                      Defina <code>ANTHROPIC_API_KEY</code> no arquivo <code>.env</code> e reinicie o
-                      servidor. Enquanto isso, só rodam verificações mecânicas.
+                      {demoMode
+                        ? ' Esta página não chama a API da Anthropic, então o que roda aqui é a verificação local. Envie um arquivo de texto para ver o ciclo completo funcionando.'
+                        : ' Defina ANTHROPIC_API_KEY no arquivo .env e reinicie o servidor. Enquanto isso, só rodam verificações mecânicas.'}
                     </div>
                   </div>
                 )}
@@ -258,14 +259,14 @@ export default function TaskDrawer({ task, aiEnabled, onChange, onClose, onEdit,
                           {v.source === 'ia' && <span className="chip chip-neutral">gerada pela IA</span>}
                           <span>{formatSize(v.size)}</span>
                           <span>{formatDateTime(v.createdAt)}</span>
-                          <a
+                          <button
+                            type="button"
                             className="btn btn-sm btn-ghost"
-                            href={api.downloadVersionUrl(task.id, v.version)}
-                            target="_blank"
-                            rel="noreferrer"
+                            title={`Baixar a versão ${v.version}`}
+                            onClick={() => api.downloadVersion(task.id, v.version)}
                           >
                             ⬇️
-                          </a>
+                          </button>
                         </span>
                       </div>
                     ))}

@@ -6,3 +6,5 @@ server/data/db.json
 server/data/uploads/
 *.log
 .DS_Store
+client/dist-demo/
+client/taskcontrol-demo.html

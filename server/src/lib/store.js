@@ -114,18 +114,3 @@ export function listTasks() {
 export function findTask(id) {
   return getDb().tasks.find((t) => t.id === id) ?? null;
 }
-
-/** Versao atual da entrega, ou null se nada foi enviado ainda. */
-export function currentVersion(task) {
-  const d = task.deliverable;
-  if (!d) return null;
-  return d.versions.find((v) => v.version === d.currentVersion) ?? null;
-}
-
-/** Parecer mais recente da versao atual da entrega, ou null. */
-export function currentReview(task) {
-  const d = task.deliverable;
-  if (!d) return null;
-  const forVersion = d.reviews.filter((r) => r.version === d.currentVersion);
-  return forVersion.length ? forVersion[forVersion.length - 1] : null;
-}

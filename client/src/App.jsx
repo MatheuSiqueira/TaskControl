@@ -138,7 +138,11 @@ export default function App() {
               : 'Configure ANTHROPIC_API_KEY no .env para ativar a revisão por IA'
           }
         >
-          {health.aiEnabled ? `🤖 IA ativa · ${health.model}` : '🧪 IA em modo demonstração'}
+          {health.aiEnabled
+            ? `🤖 IA ativa · ${health.model}`
+            : health.demo
+              ? '🧪 Demonstração'
+              : '🧪 IA em modo demonstração'}
         </span>
 
         <button type="button" className="btn btn-primary" onClick={() => setFormTask('new')}>
@@ -147,6 +151,29 @@ export default function App() {
       </header>
 
       <main className="main">
+        {health.demo && (
+          <div className="alert alert-info" style={{ marginBottom: 18 }}>
+            <span>👋</span>
+            <div>
+              <strong>Esta é uma demonstração do TaskControl</strong>
+              A interface, a trava de conclusão, o versionamento e o ciclo de melhoria são os
+              reais — rodando aqui dentro do navegador. O que não roda é a chamada à API da
+              Anthropic: esta página não fala com a API, então a revisão usa a verificação local.
+              A tarefa <em>Relatório mensal de vendas</em> já vem com um parecer de exemplo no
+              formato exato que o <code>claude-opus-5</code> devolve.{' '}
+              <a
+                href="https://github.com/MatheuSiqueira/TaskControl/tree/claude/task-control-ai-review-1hetu5"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'var(--accent)' }}
+              >
+                Código completo no GitHub
+              </a>
+              .
+            </div>
+          </div>
+        )}
+
         <div className="toolbar">
           <div className="search">
             <input
@@ -205,6 +232,7 @@ export default function App() {
         <TaskDrawer
           task={openTask}
           aiEnabled={health.aiEnabled}
+          demoMode={Boolean(health.demo)}
           onChange={upsert}
           onClose={() => setOpenTaskId(null)}
           onEdit={() => setFormTask(openTask)}

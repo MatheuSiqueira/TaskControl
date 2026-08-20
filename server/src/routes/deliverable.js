@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
-import { UPLOAD_DIR, currentVersion, findTask, save } from '../lib/store.js';
-import { serializeReview, serializeTask } from '../lib/gate.js';
+import { UPLOAD_DIR, findTask, save } from '../lib/store.js';
+import { currentVersion, serializeReview, serializeTask } from '../lib/gate.js';
 import { MAX_UPLOAD_BYTES, classify, safeName } from '../lib/files.js';
 import { hasCredentials, reviewFile } from '../ai/reviewer.js';
 

@@ -45,6 +45,14 @@ Testes:
 npm test
 ```
 
+### Versão de demonstração
+
+`npm run build:demo` gera `client/taskcontrol-demo.html`: um único arquivo HTML com a
+interface inteira e um backend que roda no próprio navegador — as mesmas regras de
+`gate.js` e o mesmo verificador local, com `Map` no lugar de disco e banco. Serve para
+mostrar o produto sem subir servidor. A revisão pela API da Anthropic **não** roda nessa
+versão: a página não fala com a API.
+
 ### Modo demonstração
 
 **Sem `ANTHROPIC_API_KEY` o site funciona, mas não há revisão de IA.** Nesse caso roda um

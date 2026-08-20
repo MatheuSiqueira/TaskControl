@@ -32,9 +32,21 @@ export default function ReviewPanel({ review, taskId, onApply, applying, isCurre
         <div className="alert alert-warn">
           <span>🧪</span>
           <div>
-            <strong>Modo demonstração</strong>
-            Sem <code>ANTHROPIC_API_KEY</code> configurada, só rodam verificações mecânicas — não é a
-            revisão da IA.
+            <strong>Verificação local — não é a revisão da IA</strong>
+            Só foram feitas checagens mecânicas: marcadores pendentes, tamanho, formatação e
+            presença dos termos dos critérios. Com a IA ativa, este parecer vem do{' '}
+            <code>claude-opus-5</code>, que lê o arquivo de verdade.
+          </div>
+        </div>
+      )}
+
+      {review.provider === 'exemplo' && (
+        <div className="alert alert-info">
+          <span>📌</span>
+          <div>
+            <strong>Parecer de exemplo</strong>
+            Escrito pelo Claude no formato exato que o revisor devolve, para você ver como é a
+            saída real. Não veio de uma chamada à API feita por esta página.
           </div>
         </div>
       )}
@@ -95,14 +107,13 @@ export default function ReviewPanel({ review, taskId, onApply, applying, isCurre
               'Uma versão corrigida do arquivo foi gerada a partir dos problemas apontados acima.'}
           </p>
           <div className="improve-actions">
-            <a
+            <button
+              type="button"
               className="btn btn-sm"
-              href={api.downloadImprovedUrl(taskId, review.id)}
-              target="_blank"
-              rel="noreferrer"
+              onClick={() => api.downloadImproved(taskId, review.id)}
             >
               ⬇️ Baixar versão melhorada
-            </a>
+            </button>
             <button
               type="button"
               className="btn btn-sm btn-primary"
@@ -122,7 +133,11 @@ export default function ReviewPanel({ review, taskId, onApply, applying, isCurre
       )}
 
       <p className="hint">
-        {review.provider === 'anthropic' ? `Revisado por ${review.model}` : 'Verificação local'}
+        {review.provider === 'anthropic'
+          ? `Revisado por ${review.model}`
+          : review.provider === 'exemplo'
+            ? `Exemplo de parecer do ${review.model}`
+            : 'Verificação local'}
         {review.usage
           ? ` · ${review.usage.inputTokens.toLocaleString('pt-BR')} tokens de entrada, ${review.usage.outputTokens.toLocaleString('pt-BR')} de saída`
           : ''}
