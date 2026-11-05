@@ -5,7 +5,9 @@
   "description": "Gestão de contratos de entrega parcelada: vigência, saldo e notas fiscais, em rede.",
   "type": "module",
   "main": "desktop/main.cjs",
-  "engines": { "node": ">=22.13" },
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "server": "node server/index.js",
     "desktop": "electron .",
@@ -13,7 +15,8 @@
     "dist": "electron-builder --win nsis"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "fflate": "^0.8.3"
   },
   "devDependencies": {
     "electron": "^36.0.0",
@@ -22,7 +25,14 @@
   "build": {
     "appId": "br.local.controlecontratos",
     "productName": "Controle de Contratos",
-    "files": ["desktop/**", "server/**", "ui/**", "package.json"],
-    "win": { "target": "nsis" }
+    "files": [
+      "desktop/**",
+      "server/**",
+      "ui/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }

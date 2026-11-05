@@ -2,7 +2,7 @@
 
 Gestão de contratos de entrega parcelada, em rede e com vários usuários ao mesmo tempo.
 Substitui a planilha: o **prazo** e o **saldo** de cada contrato aparecem no dashboard e se
-atualizam sozinhos — o saldo é debitado a cada nota fiscal lançada e o prazo corre com os dias.
+atualizam sozinhos — o saldo é debitado a cada lançamento e o prazo corre com os dias.
 
 ## Como funciona
 
@@ -27,25 +27,52 @@ npm run dist           # instalador Windows (electron-builder) -> contratos/dist
 Requer Node.js ≥ 22.13 (usa o SQLite embutido do Node). O PC servidor precisa liberar a
 porta (padrão 3210) no firewall para a rede local.
 
-## O que o dashboard mostra, por contrato
+## Modelo (igual ao da planilha GESTOR DE CONTRATOS)
 
-| Item | Cálculo |
+Um contrato por **produto**, controlado por **quantidade** (KG, M³, LT…). Cada contrato tem um livro de
+lançamentos; o tipo do lançamento decide qual saldo ele mexe:
+
+| Tipo | Efeito |
 |---|---|
-| Tempo de contrato | dias restantes até o **fim vigente** (fim original, ou o da última prorrogação por aditivo) e % do prazo |
-| Saldo contratual | valor do contrato (+ aditivos de valor) − soma das notas fiscais |
-| Alertas | vence em ≤ 30 dias (crítico) / ≤ 90 (atenção); saldo ≤ 10% (crítico) / ≤ 25% (atenção); saldo excedido ou esgotado; ritmo de consumo que esgota o saldo antes do fim da vigência, ou que deixará sobra |
-| Análise de ritmo | consumo médio/mês, valor/mês necessário para usar o saldo, data estimada de esgotamento, sobra projetada |
+| `ENTRADA`, `SOLICITAÇÃO` | consomem o **saldo contratual** |
+| `DEVOLUÇÃO` | devolve saldo contratual |
+| `LOCAÇÃO` | consome o **saldo de locação** |
+| `APLICAÇÃO` / `RECOLHIMENTO` | somam / subtraem o **saldo de aplicação** (cilindros em campo) |
+| `REFATURA`, `RECUSA`, `ENTREGA PARCELADA` | informativos, não mexem em saldo |
 
-Limites dos alertas ficam em `server/calc.js` (`LIMITES`).
+## O que o dashboard mostra
+
+- **Tempo de contrato**: dias até o término, que correm sozinhos; **saldo contratual**: quantidade contratada
+  menos os lançamentos. Mais aplicação, locação e o **status de processo**.
+- **Status de processo** (mesma regra da planilha, em `server/calc.js`):
+
+| Aquisição | SOLICITAR PEDIDO | EMITIR NOVA REQ |
+|---|---|---|
+| Pregão | ≤ 105 dias **ou** saldo ≤ 20% | ≤ 210 dias **ou** saldo ≤ 30% |
+| PV | ≤ 45 dias **ou** saldo ≤ 20% | ≤ 90 dias **ou** saldo ≤ 30% |
+
+  Se já há novo processo/requisição em andamento (nº iniciado em 45, 36 ou 30), o alerta é suspenso.
+  Diferença deliberada: saldo **zerado** conta como saldo baixo (na planilha, o texto "SEM CONTRATO" fazia um
+  contrato zerado com muito prazo aparecer como "-").
+- **Solicitações de fornecimento**: emitidas pelo sistema (vários itens do mesmo fornecedor), com a carta pronta
+  para imprimir / salvar em PDF. Bloqueia contrato encerrado, avisa "último fornecimento", saldo excedido e
+  contrato a ≤ 15 dias do fim. "Lançar entrada" a partir da solicitação já a encerra.
+
+## Importando a planilha atual
+
+*Contratos → Importar planilha…* (ou o botão na tela inicial vazia) lê o `.xlsm` (só as abas necessárias; a
+aba "SOLICITAÇÃO DE FORNECIMENTO" de 80 MB é ignorada) e **confere** o saldo contratual, de aplicação e de
+locação de cada contrato contra os valores que a planilha mostrava. Com a planilha enviada: 44 contratos,
+1.751 lançamentos, 4 solicitações em aberto, 44/44 saldos idênticos, status de processo idêntico em 43/44
+(a diferença é a regra acima). Se o sistema já tem dados, a importação pede confirmação para substituí-los.
 
 ## Regras de segurança dos dados
 
-- Nota que **excede o saldo** é barrada e só passa com confirmação explícita; a checagem é
-  feita dentro de uma transação, então dois usuários lançando juntos não furam o saldo.
-- NF com número repetido no mesmo contrato é recusada.
+- Lançamento que **excede o saldo** (contratual, de locação ou de aplicação) ou repete uma NF só grava com
+  confirmação explícita; a checagem é feita dentro de uma transação, então dois usuários lançando juntos não furam o saldo.
 - Editar um contrato que outra pessoa alterou nesse meio-tempo é recusado (controle de versão),
   em vez de sobrescrever em silêncio.
-- Contrato com notas não pode ser excluído, só arquivado. Aditivo que deixaria o saldo negativo não entra.
+- Contrato com lançamentos não pode ser excluído, só arquivado.
 - Todo lançamento/edição/exclusão grava **quem fez e quando** (histórico no contrato).
 - Valores são guardados em centavos inteiros.
 - **Backup**: menu *Arquivo → Fazer backup do banco* (no PC servidor).
@@ -55,6 +82,6 @@ Limites dos alertas ficam em `server/calc.js` (`LIMITES`).
 - **Não há login por usuário**: cada pessoa informa o nome ao abrir (aparece no histórico).
   Há um *código de acesso* opcional para o servidor (tela de configuração, ou `CODIGO_ACESSO`).
   O tráfego é HTTP puro — pensado para rede interna confiável; não exponha à internet.
-- Não há importação da planilha antiga ainda (precisa do layout das colunas); existe exportação
-  das notas em CSV.
+- A planilha vinculava o PDF de cada NF por hiperlink; aqui os PDFs das notas **não** são anexados ainda.
+  Há exportação dos lançamentos em CSV.
 - O instalador (`npm run dist`) não foi gerado/testado aqui; o app foi testado rodando em Electron.
