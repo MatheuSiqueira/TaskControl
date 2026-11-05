@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle de Contratos</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topo">
+  <div class="marca">Controle de Contratos</div>
+  <nav>
+    <a href="#/" data-rota="dashboard">Dashboard</a>
+    <a href="#/contratos" data-rota="contratos">Contratos</a>
+  </nav>
+  <div class="espaco"></div>
+  <span id="conexao" class="conexao" title="Conexão em tempo real">●</span>
+  <button id="usuario" class="link" title="Trocar nome de usuário"></button>
+</header>
+<main id="view" aria-live="polite"></main>
+<div id="modal-fundo" hidden><div id="modal" role="dialog" aria-modal="true"></div></div>
+<div id="toasts"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

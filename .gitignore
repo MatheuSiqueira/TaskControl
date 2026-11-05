@@ -8,3 +8,6 @@ server/data/uploads/
 .DS_Store
 client/dist-demo/
 client/taskcontrol-demo.html
+
+contratos/dados/
+contratos/dist/
